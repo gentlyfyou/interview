@@ -1,5 +1,4 @@
 class Stack:
-    def __init__(delf): 
     def __init__(self):
         self.items = []
 
@@ -22,23 +21,30 @@ class Stack:
     def size(self) -> int:
         return len(self.items)
     
-    def check_brackets(sequence: str) -> str:
+    def check_brackets(self, sequence: str) -> str:
+        pairs = {')': '(', '}': '{', ']': '['}
+        
+        self.items = [] 
+
+        for char in sequence:
+            if char in "({[":
+                self.push(char)
+            elif char in ")}]":
+                if self.is_empty():
+                    return "Несбалансированно"
+                
+                top_element = self.pop()
+                
+                if pairs[char] != top_element:
+                    return "Несбалансированно"
+
+        if self.is_empty():
+            return "Сбалансированно"
+        else:
+            return "Несбалансированно"
+        
+if __name__ == '__main__':
+    user_input = input("Введите строку со скобками: ")
     stack = Stack()
-    pairs = {')': '(', '}': '{', ']': '['}
-
-    for char in sequence:
-        if char in "({[":
-            stack.push(char)
-        elif char in ")}]":
-            if stack.is_empty():
-                return "Несбалансированно"
-            
-            top_element = stack.pop()
-            
-            if pairs[char] != top_element:
-                return "Несбалансированно"
-
-    if stack.is_empty():
-        return "Сбалансированно"
-    else:
-        return "Несбалансированно"
+    result = stack.check_brackets(user_input)
+    print(result)

@@ -1,6 +1,7 @@
 import smtplib
 import imaplib
 import email
+import getpass
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -24,10 +25,11 @@ class EmailClient:
                 server.login(self.login, self.password)
                 server.sendmail(self.login, recipients, msg.as_string())
             print("Письмо успешно отправлено!")
-        except Exception as e:
-            print(f"Ошибка при отправке письма: {e}")
+        except smtplib.SMTPException as e:
+            print(f"Ошибка SMTP при отправке письма: {e}")
 
     def receive_email(self, mailbox: str = "inbox", header_subject: str = None):
+        mail = None
         try:
             mail = imaplib.IMAP4_SSL(self.imap_server)
             mail.login(self.login, self.password)
@@ -46,16 +48,21 @@ class EmailClient:
             raw_email = data[0][1]
             email_message = email.message_from_bytes(raw_email)
             
-            mail.logout()
             return email_message
             
-        except Exception as e:
-            print(f"Ошибка при получении письма: {e}")
+        except imaplib.IMAP4.error as e:
+            print(f"Ошибка IMAP при получении письма: {e}")
             return None
+        finally:
+            if mail is not None:
+                try:
+                    mail.logout()
+                except Exception:
+                    pass
 
 
 if __name__ == '__main__':
-    MY_LOGIN = "login@gmail.com"
-    MY_PASSWORD = "qwerty" 
+    user_login = input("Введите ваш email (логин): ")
+    user_password = getpass.getpass("Введите пароль от почты (ввод не будет отображаться): ")
     
-    client = EmailClient(login=MY_LOGIN, password=MY_PASSWORD)
+    client = EmailClient(login=user_login, password=user_password)
